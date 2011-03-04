@@ -10,6 +10,7 @@
  * @modified Phil Sturgeon <http://philsturgeon.co.uk>
  * @modified Dan Horrigan <http://dhorrigan.com>
  * @copyright Copyright (c) 2011, Jamie Rumbelow <http://jamierumbelow.net>
+ * @version 1.0 -- 2011/02/19
  */
 
 class MY_Model extends CI_Model {

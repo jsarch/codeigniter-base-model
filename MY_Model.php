@@ -9,6 +9,7 @@
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @modified Phil Sturgeon <http://philsturgeon.co.uk>
  * @modified Dan Horrigan <http://dhorrigan.com>
+ * @modified Jeremy Archuleta <http://github.com/jsarch>
  * @copyright Copyright (c) 2011, Jamie Rumbelow <http://jamierumbelow.net>
  * @version 1.0 -- 2011/02/19
  */

@@ -16,6 +16,13 @@
 class MY_Model extends CI_Model {
 
 	/**
+	 * The database to use, defaults to $this->db
+	 *
+	 * @var string
+	 */
+	protected $_db;
+
+	/**
 	 * The database table to use, only
 	 * set if you want to bypass the magic
 	 *
@@ -72,14 +79,24 @@ class MY_Model extends CI_Model {
 
 	/**
 	 * The class constructer, tries to guess
-	 * the table name.
+	 * the table name if not given as $params['table'].
+	 * Also sets the database to use if not given as $params['db'].
 	 */
-	public function __construct() {
+	public function __construct($params = array()) {
 		parent::__construct();
 
-		$this->load->helper('inflector');
+		if (! array_key_exists('table', $params))
+		{
+			$this->load->helper('inflector');
+			$this->_fetch_table();
+		}
+		else
+		{
+			$this->_table = $params['table'];
+		}
 
-		$this->_fetch_table();
+		// Set the database to access
+		$this->_db = (! array_key_exists('db', $params)) ? $this->db : $params['db'];
 	}
 
 	/**
@@ -90,7 +107,7 @@ class MY_Model extends CI_Model {
 	 * @return object
 	 */
 	public function get($primary_value) {
-		return $this->db->where($this->primary_key, $primary_value)
+		return $this->_db->where($this->primary_key, $primary_value)
 						->get($this->_table)
 						->row();
 	}
@@ -107,7 +124,7 @@ class MY_Model extends CI_Model {
 		$where =& func_get_args();
 		$this->_set_where($where);
 
-		return $this->db->get($this->_table)
+		return $this->_db->get($this->_table)
 						->row();
 	}
 
@@ -120,7 +137,7 @@ class MY_Model extends CI_Model {
 	 * @return array
 	 */
 	public function get_many($values) {
-		$this->db->where_in($this->primary_key, $values);
+		$this->_db->where_in($this->primary_key, $values);
 
 		return $this->get_all();
 	}
@@ -146,7 +163,7 @@ class MY_Model extends CI_Model {
 	 * @return array
 	 */
 	public function get_all() {
-		return $this->db->get($this->_table)
+		return $this->_db->get($this->_table)
 						->result();
 	}
 
@@ -162,7 +179,7 @@ class MY_Model extends CI_Model {
 		$where =& func_get_args();
 		$this->_set_where($where);
 
-		return $this->db->count_all_results($this->_table);
+		return $this->_db->count_all_results($this->_table);
 	}
 
 	/**
@@ -171,7 +188,7 @@ class MY_Model extends CI_Model {
 	 * @return integer
 	 */
 	public function count_all() {
-		return $this->db->count_all($this->_table);
+		return $this->_db->count_all($this->_table);
 	}
 
 	/**
@@ -191,10 +208,10 @@ class MY_Model extends CI_Model {
 
 		if($valid) {
 			$data = $this->_run_before_create($data);
-				$this->db->insert($this->_table, $data);
-			$this->_run_after_create($data, $this->db->insert_id());
+				$this->_db->insert($this->_table, $data);
+			$this->_run_after_create($data, $this->_db->insert_id());
 
-			return $this->db->insert_id();
+			return $this->_db->insert_id();
 		} else {
 			return FALSE;
 		}
@@ -232,7 +249,7 @@ class MY_Model extends CI_Model {
 		}
 
 		if ($valid) {
-			return $this->db->where($this->primary_key, $primary_value)
+			return $this->_db->where($this->primary_key, $primary_value)
 							->set($data)
 							->update($this->_table);
 		} else {
@@ -254,7 +271,7 @@ class MY_Model extends CI_Model {
 		$this->_set_where($args);
 
 		if ($this->_run_validation($data)) {
-			return $this->db->set($data)
+			return $this->_db->set($data)
 							->update($this->_table);
 		} else {
 			return FALSE;
@@ -277,7 +294,7 @@ class MY_Model extends CI_Model {
 		}
 
 		if($valid) {
-			return $this->db->where_in($this->primary_key, $primary_values)
+			return $this->_db->where_in($this->primary_key, $primary_values)
 							->set($data)
 							->update($this->_table);
 
@@ -294,7 +311,7 @@ class MY_Model extends CI_Model {
 	 */
 	public function update_all($data)
 	{
-		return $this->db->set($data)
+		return $this->_db->set($data)
 						->update($this->_table);
 	}
 
@@ -306,7 +323,7 @@ class MY_Model extends CI_Model {
 	 * @return bool
 	 */
 	public function delete($id) {
-		return $this->db->where($this->primary_key, $id)
+		return $this->_db->where($this->primary_key, $id)
 						->delete($this->_table);
 	}
 
@@ -322,7 +339,7 @@ class MY_Model extends CI_Model {
 		$where =& func_get_args();
 		$this->_set_where($where);
 
-		return $this->db->delete($this->_table);
+		return $this->_db->delete($this->_table);
 	}
 
 	/**
@@ -333,7 +350,7 @@ class MY_Model extends CI_Model {
 	 * @return bool
 	 */
 	public function delete_many($primary_values) {
-		return $this->db->where_in($this->primary_key, $primary_values)
+		return $this->_db->where_in($this->primary_key, $primary_values)
 						->delete($this->_table);
 	}
 
@@ -353,7 +370,7 @@ class MY_Model extends CI_Model {
 			$value = $args[0];
 		}
 
-		$query = $this->db->select(array($key, $value))
+		$query = $this->_db->select(array($key, $value))
 						  ->get($this->_table);
 
 		$options = array();
@@ -374,7 +391,7 @@ class MY_Model extends CI_Model {
 	 * @since 1.1.2
 	 */
 	public function order_by($criteria, $order = 'ASC') {
-		$this->db->order_by($criteria, $order);
+		$this->_db->order_by($criteria, $order);
 		return $this;
 	}
 
@@ -388,7 +405,7 @@ class MY_Model extends CI_Model {
 	 * @since 1.1.1
 	 */
 	public function limit($limit, $offset = 0) {
-		$this->db->limit($limit, $offset);
+		$this->_db->limit($limit, $offset);
 		return $this;
 	}
 
@@ -477,9 +494,9 @@ class MY_Model extends CI_Model {
 	 */
 	private function _set_where($params) {
 		if(count($params) == 1) {
-			$this->db->where($params[0]);
+			$this->_db->where($params[0]);
 		} else {
-			$this->db->where($params[0], $params[1]);
+			$this->_db->where($params[0], $params[1]);
 		}
 	}
 }

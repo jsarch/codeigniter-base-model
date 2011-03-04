@@ -106,27 +106,27 @@ class MY_Model extends CI_Model {
 	 * a value for your primary key
 	 *
 	 * @param string $primary_value The value of your primary key
+	 * @param array $columns Specific columns to return (default all)
 	 * @return object
 	 */
-	public function get($primary_value) {
-		return $this->_db->where($this->primary_key, $primary_value)
+	public function get($primary_value, $columns = array()) {
+		return $this->_db->select($columns)
+						->where($this->primary_key, $primary_value)
 						->get($this->_table)
 						->row();
 	}
 
 	/**
-	 * Get a single record by creating a WHERE clause by passing
-	 * through a CI AR where() call
+	 * Get a single record defined by a WHERE clause by using
+	 * the CI AR get_where() call
 	 *
-	 * @param string $key The key to search by
-	 * @param string $val The value of that key
+	 * @param string $where The where clause
+	 * @param array $columns Specific columns to return (default all)
 	 * @return object
 	 */
-	public function get_by() {
-		$where =& func_get_args();
-		$this->_set_where($where);
-
-		return $this->_db->get($this->_table)
+	public function get_by($where, $columns = array()) {
+		return $this->_db->select($columns)
+						->get_where($this->_table, $where)
 						->row();
 	}
 
@@ -134,38 +134,39 @@ class MY_Model extends CI_Model {
 	 * Similar to get(), but returns a result array of
 	 * many result objects.
 	 *
-	 * @param string $key The key to search by
 	 * @param string $values The value of that key
+	 * @param array $columns Specific columns to return (default all)
 	 * @return array
 	 */
-	public function get_many($values) {
+	public function get_many($values, $columns = array()) {
 		$this->_db->where_in($this->primary_key, $values);
 
-		return $this->get_all();
+		return $this->get_all($columns);
 	}
 
 	/**
 	 * Similar to get_by(), but returns a result array of
 	 * many result objects.
 	 *
-	 * @param string $key The key to search by
-	 * @param string $val The value of that key
+	 * @param string $where The where clause
+	 * @param array $columns Specific columns to return (default all)
 	 * @return array
 	 */
-	public function get_many_by() {
-		$where =& func_get_args();
-		$this->_set_where($where);
+	public function get_many_by($where, $columns = array()) {
+		$this->_db->where($where);
 
-		return $this->get_all();
+		return $this->get_all($columns);
 	}
 
 	/**
 	 * Get all records in the database
 	 *
+	 * @param array $columns Specific columns to return (default all)
 	 * @return array
 	 */
-	public function get_all() {
-		return $this->_db->get($this->_table)
+	public function get_all($columns = array()) {
+		return $this->_db->select($columns)
+						->get($this->_table)
 						->result();
 	}
 

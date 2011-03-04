@@ -12,6 +12,7 @@
  * @modified Jeremy Archuleta <http://github.com/jsarch>
  * @copyright Copyright (c) 2011, Jamie Rumbelow <http://jamierumbelow.net>
  * @version 1.0 -- 2011/02/19
+ * @version 1.1 -- 2011/03/04
  */
 
 class MY_Model extends CI_Model {

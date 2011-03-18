@@ -423,6 +423,30 @@ class MY_Model extends CI_Model {
 	}
 
 	/**
+	 * Performs a 'load data local infile'
+	 *
+	 * @param string $file The file containing the data
+	 * @param string $columns The columns to insert
+	 * @param integer $num_expected The number of rows expected to be inserted
+	 * @return integer
+	 */
+	public function load($file, $columns, $num_expected) {
+		$last_time = microtime(true);
+
+		// Using "simple_query" as hack to work with PHP versions before 5.3.6
+		$query = $this->_db->simple_query("LOAD DATA LOCAL INFILE '$file' INTO TABLE {$this->_table} FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' ESCAPED BY '\\\\' $columns");
+		return microtime(true) - $last_time;
+
+		// Uncomment lines below when using PHP 5.3.6+ (bugs 53503, 53649)
+		// $query = $this->_db->query("LOAD DATA LOCAL INFILE '$file' INTO TABLE {$this->_table} FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' ESCAPED BY '\\\\' $columns");
+		// $elapsed = microtime(true) - $last_time;
+		// if ($query && $this->_db->affected_rows() == $num_expected) {
+		// 	return $elapsed;
+		// }
+		// return FALSE;
+	}
+
+	/**
 	 * Runs the before create actions.
 	 *
 	 * @param array $data The array of actions
